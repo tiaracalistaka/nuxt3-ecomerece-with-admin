@@ -1,81 +1,88 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Label as FieldLabel } from "@/components/ui/label"
+import authsocialbutton from "@/components/ui/auth/socialbutton.vue"
+type Payload = {
+    email: string
+    password: string
+}
+const form = ref<Payload>({
+    email: "",
+    password: "",
+})
 
-const props = defineProps<{
-  class?: HTMLAttributes["class"]
-}>()
+
+const onSubmit = async () => {
+    try {
+        await $fetch("/api/auth/login", {
+            method: "POST",
+            body: form.value,
+        })
+        navigateTo("/")
+    } catch (error) {
+        console.log(error)
+    }
+}
 </script>
 
 <template>
-  <div :class="cn('flex flex-col gap-6', props.class)">
+  <div class="flex flex-col justify-center items-center min-h-screen">
+    <div class="w-full max-w-sm">
+    <form @submit.prevent="onSubmit" action="">
     <Card>
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle class="text-2xl">Login</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your information below to login
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form>
-          <FieldGroup>
-            <Field>
-              <FieldLabel for="email">
-                Email
-              </FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </Field>
-            <Field>
-              <div class="flex items-center">
-                <FieldLabel for="password">
-                  Password
-                </FieldLabel>
-                <a
-                  href="#"
-                  class="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </Field>
-            <Field>
-              <Button type="submit">
-                Login
-              </Button>
-              <Button variant="outline" type="button">
-                Login with Google
-              </Button>
-              <FieldDescription class="text-center">
-                Don't have an account?
-                <a href="#">
-                  Sign up
-                </a>
-              </FieldDescription>
-            </Field>
-          </FieldGroup>
-        </form>
-      </CardContent>
+      <CardContent class="grid gap-4">
+        
+        <div class="grid gap-2">
+          <FieldLabel for="email">
+            Email
+          </FieldLabel>
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            v-model="form.email"
+          />
+        </div>
+        <div class="grid gap-2">
+          <FieldLabel for="password">
+          Password
+          </FieldLabel>
+          
+        <Input id="password" type="password" required v-model="form.password" />
+        </div>
+        <div class="grid gap-2">
+            <authsocialbutton label="Github" icon="radix-icons:github-logo"></authsocialbutton>
+        </div>
+        </CardContent>
+        <CardFooter class="flex-col space-y-2">
+          <Button w-full type="submit">
+            Sign In
+          </Button>
+          <p>
+            Don't have an account?
+            <NuxtLink
+              to="/auth/register"
+              class="border-b border-gray-500 text-muted-foreground hover:text-primary">Register here</NuxtLink>
+          </p>
+          </CardFooter>     
     </Card>
+    </form>
+    </div>
   </div>
 </template>
